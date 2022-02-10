@@ -1,0 +1,103 @@
+
+version: v1.0
+name: ''
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+after_pipeline:
+  task:
+    jobs:
+      - name: Reports
+        commands:
+          - test-results gen-pipeline-report -f
+   
+auto_cancel:
+  queued:
+    when: 'true'
+blocks:
+  - name: Setup
+    dependencies: []
+    task:
+      jobs:
+        - name: bundle
+          commands:
+            - sem-version ruby 2.7.3
+            - sem-version node 14.16.1
+            - checkout
+            - cache restore
+            - bundle install
+            - cache store
+            - echo $SEMAPHORE_GIT_COMMIT_RANGE
+      env_vars:
+        - name: DOCKER_COMPOSE_VERSION
+          value: 1.4.2
+  - name: Code scanning
+    dependencies:
+      - Setup
+    task:
+      jobs:
+        - name: check style + security
+          commands:
+            - sem-version ruby 2.7.3
+            - sem-version node 14.16.1
+            - checkout
+            - cache restore
+            - bundle install
+            - cache store
+            - bundle exec rubocop
+            - bundle exec brakeman
+  - name: Unit tests
+    dependencies:
+      - Code scanning
+    task:
+      prologue:
+        commands:
+          - sem-version ruby 2.7.3
+          - sem-version node 14.16.1
+          - checkout
+          - cache restore
+          - bundle install
+          - cache store
+          - sem-service start postgres
+          - 'bundle exec rake db:setup'
+          - '#added here'
+          - '#gem install rspec_junit_formatter'
+      jobs:
+        - name: RSpec - model tests
+          commands:
+            - bundle exec rspec spec/models
+        - name: RSpec - controller tests EDDITED
+          commands:
+            - bundle exec rspec spec/controllers
+            - '#bundle exec rspec --format RspecJunitFormatter --out /tmp/junit.xml --format documentation'
+            - '#TB_RSPEC_OPTIONS=''--format RspecJunitFormatter --out rspec.xml'' rspec_booster --job $SEMAPHORE_JOB_INDEX/$SEMAPHORE_JOB_COUNT || test-results publish rspec.xml'
+          parallelism: 2
+      epilogue:
+        always:
+          commands:
+            - test-results publish rspec.xml
+            - '#test-results publish junit.xml'
+            - '#TB_RSPEC_OPTIONS=''--format RspecJunitFormatter --out rspec.xml'' rspec_booster --job $SEMAPHORE_JOB_INDEX/$SEMAPHORE_JOB_COUNT || test-results publish rspec.xml'
+  - name: Integration tests
+    dependencies:
+      - Unit tests
+    task:
+      prologue:
+        commands:
+          - sem-version ruby 2.7.3
+          - sem-version node 14.16.1
+          - checkout
+          - cache restore
+          - bundle install
+          - cache store
+      jobs:
+        - name: RSpec - feature specs
+          commands:
+            - sem-service start postgres
+            - 'bundle exec rake db:setup'
+            - bundle exec rspec spec/features
+      epilogue:
+        always:
+          commands:
+            - test-results publish junit.xml
