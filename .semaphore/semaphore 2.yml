@@ -1,17 +1,9 @@
-
 version: v1.0
 name: ''
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
-after_pipeline:
-  task:
-    jobs:
-      - name: Reports
-        commands:
-          - test-results gen-pipeline-report -f
-   
 auto_cancel:
   queued:
     when: 'true'
@@ -101,3 +93,9 @@ blocks:
         always:
           commands:
             - test-results publish junit.xml
+after_pipeline:
+  task:
+    jobs:
+      - name: Reports
+        commands:
+          - test-results gen-pipeline-report -f
