@@ -17,6 +17,7 @@ blocks:
             - '#cache restore'
             - '#bundle install'
             - '#cache store'
+            - checkout
             - cache restore
             - rbenv rehash
             - bundle config set --local deployment 'true'
