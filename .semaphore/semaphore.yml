@@ -11,12 +11,17 @@ blocks:
       jobs:
         - name: bundle
           commands:
-            - sem-version ruby 2.7.3
-            - sem-version node 14.16.1
-            - checkout
+            - '#sem-version ruby 2.7.3'
+            - '#sem-version node 14.16.1'
+            - '#checkout'
+            - '#cache restore'
+            - '#bundle install'
+            - '#cache store'
             - cache restore
-            - bundle install
-            - cache store
+            - rbenv rehash
+            - bundle config set --local deployment 'true'
+            - bundle config set --local path 'vendor/bundle'
+            - bundle
   - name: Code scanning
     dependencies:
       - Setup
