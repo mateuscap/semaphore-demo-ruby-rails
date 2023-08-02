@@ -23,6 +23,7 @@ blocks:
             - bundle config set --local deployment 'true'
             - bundle config set --local path 'vendor/bundle'
             - bundle
+            - gem install couve
   - name: Code scanning
     dependencies:
       - Setup
@@ -38,6 +39,8 @@ blocks:
             - cache store
             - '#bundle exec rubocop'
             - '#bundle exec brakeman'
+    skip:
+      when: branch = 'master'
   - name: Unit tests
     dependencies:
       - Code scanning
@@ -63,6 +66,8 @@ blocks:
         always:
           commands:
             - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit.xml"
+    skip:
+      when: branch = 'master'
   - name: Integration tests
     dependencies:
       - Unit tests
@@ -85,6 +90,8 @@ blocks:
         always:
           commands:
             - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F3D7️ Integration tests\" junit.xml"
+    skip:
+      when: branch = 'master'
 after_pipeline:
   task:
     jobs:
