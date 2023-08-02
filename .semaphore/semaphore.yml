@@ -23,7 +23,7 @@ blocks:
             - bundle config set --local deployment 'true'
             - bundle config set --local path 'vendor/bundle'
             - bundle
-            - gem install couve
+            - gem install sass-rails
   - name: Code scanning
     dependencies:
       - Setup
