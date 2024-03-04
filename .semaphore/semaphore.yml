@@ -12,6 +12,7 @@ blocks:
         - name: bundle
           commands:
             - echo $whitelist
+            - echo $test
             - checkout
       secrets:
         - name: ticket
