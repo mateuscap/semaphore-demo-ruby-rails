@@ -24,6 +24,8 @@ blocks:
             - bundle config set --local path 'vendor/bundle'
             - bundle
             - gem install sass-rails
+      secrets:
+        - name: ticket
   - name: Code scanning
     dependencies:
       - Setup
