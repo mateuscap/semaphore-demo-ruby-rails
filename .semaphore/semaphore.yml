@@ -12,19 +12,7 @@ blocks:
         - name: bundle
           commands:
             - echo $whitelist
-            - '#sem-version ruby 2.7.3'
-            - '#sem-version node 14.16.1'
-            - '#checkout'
-            - '#cache restore'
-            - '#bundle install'
-            - '#cache store'
             - checkout
-            - cache restore
-            - rbenv rehash
-            - bundle config set --local deployment 'true'
-            - bundle config set --local path 'vendor/bundle'
-            - bundle
-            - gem install sass-rails
       secrets:
         - name: ticket
   - name: Code scanning
@@ -43,7 +31,7 @@ blocks:
             - '#bundle exec rubocop'
             - '#bundle exec brakeman'
     skip:
-      when: branch = 'master'
+      when: branch = 'master' or pull_request =~ '.*'
   - name: Unit tests
     dependencies:
       - Code scanning
@@ -70,7 +58,7 @@ blocks:
           commands:
             - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit.xml"
     skip:
-      when: branch = 'master'
+      when: branch = 'master' or pull_request =~ '.*'
   - name: Integration tests
     dependencies:
       - Unit tests
@@ -94,7 +82,7 @@ blocks:
           commands:
             - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F3D7️ Integration tests\" junit.xml"
     skip:
-      when: branch = 'master'
+      when: branch = 'master' or pull_request =~ '.*'
 after_pipeline:
   task:
     jobs:
