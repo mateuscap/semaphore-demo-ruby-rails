@@ -31,8 +31,6 @@ blocks:
             - cache store
             - '#bundle exec rubocop'
             - '#bundle exec brakeman'
-    skip:
-      when: branch = 'master' or pull_request =~ '.*'
   - name: Unit tests
     dependencies:
       - Code scanning
@@ -58,8 +56,6 @@ blocks:
         always:
           commands:
             - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit.xml"
-    skip:
-      when: branch = 'master' or pull_request =~ '.*'
   - name: Integration tests
     dependencies:
       - Unit tests
@@ -82,8 +78,6 @@ blocks:
         always:
           commands:
             - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F3D7️ Integration tests\" junit.xml"
-    skip:
-      when: branch = 'master' or pull_request =~ '.*'
 after_pipeline:
   task:
     jobs:
