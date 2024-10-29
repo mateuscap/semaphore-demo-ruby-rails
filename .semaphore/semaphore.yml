@@ -28,6 +28,8 @@ blocks:
             - checkout
             - cache restore
             - bundle install
+            - bundle list
+            - bundle show
             - cache store
             - '#bundle exec rubocop'
             - '#bundle exec brakeman'
@@ -48,6 +50,8 @@ blocks:
       jobs:
         - name: RSpec - model tests
           commands:
+            - bundle list
+            - bundle show
             - bundle exec rspec spec/models
         - name: RSpec - controller tests
           commands:
