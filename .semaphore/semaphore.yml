@@ -39,14 +39,14 @@ blocks:
     task:
       prologue:
         commands:
-          - sem-version ruby 2.7.3
-          - sem-version node 14.16.1
-          - checkout
-          - cache restore
-          - bundle install
-          - cache store
-          - sem-service start postgres
-          - 'bundle exec rake db:setup'
+          - '#sem-version ruby 2.7.3'
+          - '#sem-version node 14.16.1'
+          - '#checkout'
+          - '#cache restore'
+          - '#bundle install'
+          - '#cache store'
+          - '#sem-service start postgres'
+          - '#bundle exec rake db:setup'
       jobs:
         - name: RSpec - model tests
           commands:
@@ -60,6 +60,10 @@ blocks:
         always:
           commands:
             - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit.xml"
+      agent:
+        machine:
+          type: a1-standard-4
+          os_image: macos-xcode15
   - name: Integration tests
     dependencies:
       - Unit tests
