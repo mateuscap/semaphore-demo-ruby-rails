@@ -2,8 +2,8 @@ version: v1.0
 name: Demo Rails 6 app
 agent:
   machine:
-    type: e1-standard-2
-    os_image: ubuntu2004
+    type: e2-standard-2
+    os_image: ubuntu2204
 blocks:
   - name: Setup
     dependencies: []
@@ -32,7 +32,7 @@ blocks:
             - cache store
             - bundle exec rubocop
             - bundle exec brakeman
-  - name: Unit tests
+  - name: Unit tests - Ubuntu 22
     dependencies:
       - Code scanning
     task:
@@ -56,10 +56,10 @@ blocks:
       epilogue:
         always:
           commands:
-            - "[[ -f junit.xml ]] && test-results publish --name \"🧪 Unit tests\" junit.xml"
-  - name: Integration tests
+            - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit.xml"
+  - name: Integration tests - Ubuntu 22
     dependencies:
-      - Unit tests
+      - Unit tests - Ubuntu 22
     task:
       prologue:
         commands:
@@ -78,8 +78,54 @@ blocks:
       epilogue:
         always:
           commands:
-            - "[[ -f junit.xml ]] && test-results publish --name \"🏗️ Integration tests\" junit.xml"
-
+            - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F3D7️ Integration tests\" junit.xml"
+  - name: Unit tests - Ubuntu 24
+    dependencies:
+      - Code scanning
+    task:
+      prologue:
+        commands:
+          - sem-version ruby 2.7.3
+          - sem-version node 14.16.1
+          - checkout
+          - cache restore
+          - bundle install
+          - cache store
+          - sem-service start postgres
+          - 'bundle exec rake db:setup'
+      jobs:
+        - name: RSpec - model tests
+          commands:
+            - bundle exec rspec spec/models
+        - name: RSpec - controller tests
+          commands:
+            - bundle exec rspec spec/controllers
+      epilogue:
+        always:
+          commands:
+            - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit.xml"
+  - name: Integration tests - Ubuntu 24
+    dependencies:
+      - Unit tests - Ubuntu 24
+    task:
+      prologue:
+        commands:
+          - sem-version ruby 2.7.3
+          - sem-version node 14.16.1
+          - checkout
+          - cache restore
+          - bundle install
+          - cache store
+      jobs:
+        - name: RSpec - feature specs
+          commands:
+            - sem-service start postgres
+            - 'bundle exec rake db:setup'
+            - bundle exec rspec spec/features
+      epilogue:
+        always:
+          commands:
+            - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F3D7️ Integration tests\" junit.xml"
 after_pipeline:
   task:
     jobs:
