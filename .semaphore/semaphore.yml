@@ -97,13 +97,15 @@ blocks:
         - name: RSpec - model tests
           commands:
             - bundle exec rspec spec/models
+            - cp junit.xml junit-2.xml
         - name: RSpec - controller tests
           commands:
             - bundle exec rspec spec/controllers
+            - cp junit.xml junit-2.xml
       epilogue:
         always:
           commands:
-            - '[[ -f junit.xml ]] && test-results publish junit.xml'
+            - test-results publish junit.xml junit-2.xml
             - "## [[ -f junit.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit.xml"
   - name: Integration tests - Ubuntu 24
     dependencies:
