@@ -101,15 +101,15 @@ blocks:
         - name: RSpec - model tests
           commands:
             - bundle exec rspec spec/models
-            - cp junit.xml junit-2.xml
         - name: RSpec - controller tests
           commands:
             - bundle exec rspec spec/controllers
-            - cp junit.xml junit-2.xml
       epilogue:
         always:
           commands:
-            - "test-results publish --name \"\U0001F9EA Unit tests\" junit.xml junit-2.xml"
+            - cp junit.xml junit-2.xml
+            - artifact push workflow junit-2.xml
+            - "## test-results publish --name \"\U0001F9EA Unit tests\" junit.xml junit-2.xml"
             - "## [[ -f junit.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit.xml"
   - name: Integration tests - Ubuntu 24
     dependencies:
@@ -129,10 +129,12 @@ blocks:
             - sem-service start postgres
             - 'bundle exec rake db:setup'
             - bundle exec rspec spec/features
+            - artifact pull workflow junit-2.xml
       epilogue:
         always:
           commands:
             - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F3D7️ Integration tests\" junit.xml"
+            - "[[ -f junit-2.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit-2"
 after_pipeline:
   task:
     jobs:
