@@ -101,14 +101,16 @@ blocks:
         - name: RSpec - model tests
           commands:
             - bundle exec rspec spec/models
+            - cp junit.xml junit-2.xml
+            - artifact push workflow junit-2.xml
         - name: RSpec - controller tests
           commands:
             - bundle exec rspec spec/controllers
+            - cp junit.xml junit-3.xml
+            - artifact push workflow junit-3.xml
       epilogue:
         always:
           commands:
-            - cp junit.xml junit-2.xml
-            - artifact push workflow junit-2.xml
             - "## test-results publish --name \"\U0001F9EA Unit tests\" junit.xml junit-2.xml"
             - "## [[ -f junit.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit.xml"
   - name: Integration tests - Ubuntu 24
@@ -134,7 +136,7 @@ blocks:
         always:
           commands:
             - "[[ -f junit.xml ]] && test-results publish --name \"\U0001F3D7️ Integration tests\" junit.xml"
-            - "[[ -f junit-2.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit-2"
+            - "[[ -f junit-2.xml ]] && test-results publish --name \"\U0001F9EA Unit tests\" junit-2.xml junit-3.xml"
 after_pipeline:
   task:
     jobs:
