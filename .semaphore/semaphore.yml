@@ -16,6 +16,7 @@ blocks:
             - checkout
             - cache restore
             - bundle install
+            - bundle exec bundle-audit check --update
             - cache store
   - name: Code scanning
     dependencies:
